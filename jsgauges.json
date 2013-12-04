@@ -1,0 +1,12 @@
+{
+    "round": {
+        "rpm": 11000,
+        "speed": 300,
+        "test": 600,
+        "load": 835
+    },
+    "linear": {
+        "temp": 25,
+        "level": 90
+    }
+}
