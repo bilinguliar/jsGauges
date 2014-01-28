@@ -392,9 +392,9 @@ var jsGauges = {
 
         if (jsGauges.json.linear) {
 
-            for (var a in jsGauges.json.linear) {
+            for (var b in jsGauges.json.linear) {
                 linearDiv = document.createElement("div");
-                linearDiv.id = a;
+                linearDiv.id = b;
                 linearDiv.className = "linearGauge";
                 fragment.appendChild(linearDiv);
             }
@@ -476,20 +476,18 @@ var jsGauges = {
 
         // Function draws all ROUND GAUGES
         function drawRoundGauge(gaugesDiv, settings) {
-
-            var paperHeight = paperWidth = (settings.gaugeRadius + 1 + settings.strokeWidth) * 2;
+            var paperWidth = (settings.gaugeRadius + 1 + settings.strokeWidth) * 2;
             jsGauges[gaugesDiv.id] = {};
-            jsGauges[gaugesDiv.id].paper = Raphael(gaugesDiv, paperWidth, paperHeight);
+            jsGauges[gaugesDiv.id].paper = Raphael(gaugesDiv, paperWidth, paperWidth);
 
             var paper = jsGauges[gaugesDiv.id].paper,
                 circleRadius = settings.gaugeRadius,
-                circleX = circleY = settings.gaugeRadius + (settings.strokeWidth / 2),
-                roundGauge = paper.circle(circleX, circleY, circleRadius),
+                circleXY = settings.gaugeRadius + (settings.strokeWidth / 2),
+                roundGauge = paper.circle(circleXY, circleXY, circleRadius),
                 startAngle = settings.startAngle,
                 gradSet = paper.set(),
                 gradAmount = (settings.max - settings.min) / settings.scaleDivisionValue,
                 gradLength = settings.graduationLength,
-                gradElements = paper.set(),
                 gradAngle = settings.gradAngle,
                 gradDensity = gradAngle / gradAmount,
                 gradCoordAmount = 360 / gradDensity,
@@ -518,7 +516,7 @@ var jsGauges = {
 
             jsGauges.toUpdate[gaugesDiv.id] = {};
             jsGauges.toUpdate[gaugesDiv.id].handLength = circleRadius - gradMargin - gradLength;
-            jsGauges.settings[gaugesDiv.id].circleX = circleX;
+            jsGauges.settings[gaugesDiv.id].circleX = circleXY;
 
             roundGauge.attr({
                 fill: settings.background,
@@ -535,19 +533,19 @@ var jsGauges = {
                     sin = Math.sin(alpha),
                     realVal = (a + settings.min / scaleDivisionValue) * scaleDivisionValue;
 
-                gradItemX1 = circleX + r1 * cos;
-                gradItemY1 = circleY + r1 * sin;
+                gradItemX1 = circleXY + r1 * cos;
+                gradItemY1 = circleXY + r1 * sin;
 
                 if (settings.redZoneStart && realVal == settings.redZoneStart) {
 
-                    redZoneStartX = circleX + (r2 + (gradLength * 0.5)) * cos;
-                    redZoneStartY = circleY + (r2 + (gradLength * 0.5)) * sin;
+                    redZoneStartX = circleXY + (r2 + (gradLength * 0.5)) * cos;
+                    redZoneStartY = circleXY + (r2 + (gradLength * 0.5)) * sin;
                 }
 
                 if (settings.redZoneStart && realVal == settings.redZoneEnd) {
 
-                    redZoneEndX = circleX + (r2 + (gradLength * 0.5)) * cos;
-                    redZoneEndY = circleY + (r2 + (gradLength * 0.5)) * sin;
+                    redZoneEndX = circleXY + (r2 + (gradLength * 0.5)) * cos;
+                    redZoneEndY = circleXY + (r2 + (gradLength * 0.5)) * sin;
 
                     // RedZone ARC Draw (rx ry x-axis-rotation large-arc-flag sweep-flag x y)+
                     redZone = paper.path([
@@ -565,8 +563,8 @@ var jsGauges = {
                 if (a % settings.step === 0) {
 
                     delta = 0.9;
-                    textX = circleX + ((r2 * delta) - settings.textMargin) * cos;
-                    textY = circleY + ((r2 * delta) - settings.textMargin) * sin;
+                    textX = circleXY + ((r2 * delta) - settings.textMargin) * cos;
+                    textY = circleXY + ((r2 * delta) - settings.textMargin) * sin;
                     textNumData = realVal / settings.textNumRatio;
                     gradStroke = settings.stepStroke;
 
@@ -588,24 +586,24 @@ var jsGauges = {
 
                 }
 
-                gradItemX2 = circleX + (r2 * delta) * cos;
-                gradItemY2 = circleY + (r2 * delta) * sin;
+                gradItemX2 = circleXY + (r2 * delta) * cos;
+                gradItemY2 = circleXY + (r2 * delta) * sin;
 
                 gradSet.push(paper.path([
                         ["M", gradItemX1, gradItemY1],
                         ["L", gradItemX2, gradItemY2]
                     ]).attr({
-                    "stroke-width": gradStroke,
-                    stroke: settings.graduationColor
-                }));
+                        "stroke-width": gradStroke,
+                        stroke: settings.graduationColor
+                    }));
             }
 
             gradSet.toFront();
 
             alarmSettings = {
                 width: settings.alarmSignWidth,                          // Width of alarm sign
-                startX: circleX - (settings.alarmSignWidth / 2),          // Left lower corner position X
-                startY: circleY + (settings.alarmSignWidth / 2),          // Left lower corner position Y
+                startX: circleXY - (settings.alarmSignWidth / 2),          // Left lower corner position X
+                startY: circleXY + (settings.alarmSignWidth / 2),          // Left lower corner position Y
                 alarmAttr: {                                                 // Object with alarm styling settings {fill: "red", "stroke-width": 2}
                     fill: settings.alarmFill,
                     stroke: settings.alarmStroke,
@@ -628,7 +626,7 @@ var jsGauges = {
 
             // Draw optional gauge text (RPM, km/h, etc)
             if (settings.gaugeText) {
-                paper.text(settings.gaugeTextX + circleX, settings.gaugeTextY + circleY, settings.gaugeText).attr({
+                paper.text(settings.gaugeTextX + circleXY, settings.gaugeTextY + circleXY, settings.gaugeText).attr({
                     fill: settings.gaugeTextColor,
                     font: settings.gaugeTextFont
                 });
@@ -771,12 +769,9 @@ var jsGauges = {
         }
 
         for (var c = 0; c < jsGauges.linearGauges.length; c += 1) {
-
             if (jsGauges.settings[jsGauges.linearGauges[c].id]) {
-
                 drawLinearGauge(jsGauges.linearGauges[c], jsGauges.settings[jsGauges.linearGauges[c].id]);
             } else {
-
                 alert("You don't have settings for linear gauge with ID: " + jsGauges.linearGauges[c].id);
             }
         }
@@ -788,8 +783,6 @@ var jsGauges = {
             jsGauges.getData();
 
         }, jsGauges.settings.interval);
-
-
     },
 
     // Function draws gauges hands, columns. Shows or hides alarm sign.
@@ -797,23 +790,19 @@ var jsGauges = {
 
         function filterValue(gaugeType, divName, settings) {
 
+            var value = jsGauges.json[gaugeType][divName];
+
             // If value in JSON is over maximum (graduation)
-            if (jsGauges.json[gaugeType][divName] <= settings.max) {
-
-                return jsGauges.json[gaugeType][divName]
-            } else {
-
-                return settings.max * 1.1;
+            if (value > settings.max) {
+                value = settings.max * 1.1;
             }
 
-            // If value is below minimun    
-            if (jsGauges.json[gaugeType][divName] >= settings.min) {
-
-                return jsGauges.json[gaugeType][divName]
-            } else {
-
-                return settings.min;
+            // If value is below minimum
+            if (value < settings.min) {
+                value = settings.min;
             }
+
+            return value;
         }
 
         //// Show alarm sign if value is in red zone, hide if not
@@ -848,11 +837,9 @@ var jsGauges = {
                     }, 1000);
 
                 } else {
-
                     alarmSet.show();
                 }
             } else {
-
                 alarmSet.hide();
             }
         }
@@ -860,14 +847,13 @@ var jsGauges = {
         function handRotate(id, settings, value) {
 
             var centerX = settings.circleX,
-                centerY = centerX,
                 hand = jsGauges.toUpdate[id].hand,
                 density = (settings.max - settings.min) / settings.gradAngle,
                 startAngle = settings.startAngle - 180;
 
             hand.angle = (value - settings.min) / density + startAngle;
 
-            hand.animate({transform: "r" + hand.angle + " " + centerX + " " + centerY}, 500);
+            hand.animate({transform: "r" + hand.angle + " " + centerX + " " + centerX}, 500);
         }
 
         function setColumnColor(settings, value) {
@@ -899,7 +885,6 @@ var jsGauges = {
             y2,
             y3,
             circleX,
-            circleY,
             columnPath,
             columnColor,
             columnHeight,
@@ -918,12 +903,11 @@ var jsGauges = {
 
                 paper = jsGauges[roundGaugeDivId].paper;
                 circleX = settings.circleX;
-                circleY = circleX;
                 x1 = settings.handMaxWidth;
                 x2 = (settings.handMaxWidth - settings.handMinWidth) / 2;
                 y2 = jsGauges.toUpdate[roundGaugeDivId].handLength + settings.handLengthTune;
                 x3 = settings.handMinWidth;
-                handPath = "M" + (circleX - (x1 / 2)) + "," + circleY + "l" + x1 + ",0 -" + x2 + "," + y2 + " -" + x3 + ",0z";
+                handPath = "M" + (circleX - (x1 / 2)) + "," + circleX + "l" + x1 + ",0 -" + x2 + "," + y2 + " -" + x3 + ",0z";
 
                 jsGauges.toUpdate[roundGaugeDivId].hand = paper.path(handPath).attr({
                     fill: settings.handColor,
@@ -936,7 +920,7 @@ var jsGauges = {
 
                 if (settings.handHolder) {
 
-                    paper.circle(circleX, circleY, settings.handHolder).attr({
+                    paper.circle(circleX, circleX, settings.handHolder).attr({
                         fill: settings.handHolderColor,
                         stroke: settings.handHolderStrkClr,
                         "stroke-width": settings.handHolderStroke
@@ -992,65 +976,48 @@ var jsGauges = {
     },
 
     onDomReady: function (handler) {
+        var called = false;
 
-        var called = false
-
-        function ready() { // (1)
-
-            if (called) return
-            called = true
-            handler()
+        function ready() {
+            if (called) return;
+            called = true;
+            handler();
         }
 
-        if (document.addEventListener) { // (2)
-
+        if (document.addEventListener) {
             document.addEventListener("DOMContentLoaded", function () {
-                ready()
-            }, false)
-
-        } else if (document.attachEvent) {  // (3)
-
-            // (3.1)
+                ready();
+            }, false);
+        } else if (document.attachEvent) {
             if (document.documentElement.doScroll && window == window.top) {
 
                 function tryScroll() {
-
-                    if (called) return
-
-                    if (!document.body) return
+                    if (called) return;
+                    if (!document.body) return;
 
                     try {
-                        document.documentElement.doScroll("left")
-                        ready()
-
+                        document.documentElement.doScroll("left");
+                        ready();
                     } catch (e) {
                         setTimeout(tryScroll, 0)
                     }
                 }
 
-                tryScroll()
+                tryScroll();
             }
 
-            // (3.2)
             document.attachEvent("onreadystatechange", function () {
-
                 if (document.readyState === "complete") {
-                    ready()
+                    ready();
                 }
-            })
+            });
         }
 
-        // (4)
-        if (window.addEventListener)
-
+        if (window.addEventListener){
             window.addEventListener('load', ready, false)
-
-        else if (window.attachEvent)
-
-            window.attachEvent('onload', ready)
-        /*  else  // (4.1)
-         window.onload=ready
-         */
+        } else if (window.attachEvent) {
+            window.attachEvent('onload', ready);
+        }
     }
 };
 
